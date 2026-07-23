@@ -44,8 +44,8 @@ ONE_PIECE{GITO_GITO_NO_AWAKENING}
 
 Level 2:
 
-I went to the whiskey_peak_investigation branch and exported the variable. Then, I ran the unlock_vault script and get the files.
-Then switch to the alternate_timeline
+I went to the whiskey_peak_investigation branch and exported the variable. Then, I ran the unlock_vault script and got the files.
+Then switched to the alternate_timeline
 
 I learnt to export variables through this.
 
