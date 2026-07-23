@@ -42,6 +42,16 @@ AWAKENING_SIGNATURE:
 ONE_PIECE{GITO_GITO_NO_AWAKENING}
 ------------------------------------------------------------
 
+
+
+
+
+
+
+
+
+
+
 Level 2:
 
 I went to the whiskey_peak_investigation branch and exported the variable. Then, I ran the unlock_vault script and got the files.
@@ -56,6 +66,15 @@ BAROQUE_DIAL{SPLIT_TIMELINE_MISDIRECTION}
 Node 42.
 
 in bounty_hunter_feed.log
+
+
+
+
+
+
+
+
+
 
 
 Level 3:
@@ -96,6 +115,18 @@ PONEGLYPH_FRAGMENT_I = "KjY2MjF4bW0lKzYqNyBsIS0vbTAtJTcnL"
 
 -------------------------------------------------
 
+
+
+
+
+
+
+
+
+
+
+
+
 Level 4:
 
 I went to the canonical branch, then the Water_7 directory and first, used gzip -dc to decompress the data into the step2_blueprints.tar file which
@@ -107,6 +138,16 @@ Result:
 PONEGLYPH_FRAGMENT_II="SwnbzptDiM3JSpvFiMuJ28PJzAlJ28VIzA="
 
 
+
+
+
+
+
+
+
+
+
+
 Level 5:
 
 I went to the alternate-timeline branch, ls -a'd to find the hidden directory and ran the python file polyglyph and put it in both the frags. the prize is:
@@ -114,6 +155,14 @@ I went to the alternate-timeline branch, ls -a'd to find the hidden directory an
 Result: 
 
 https://github.com/rogueone-x/Laugh-Tale-Merge-War
+
+
+
+
+
+
+
+
 
 Level 6:
 
