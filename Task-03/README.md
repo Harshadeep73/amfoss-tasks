@@ -6,7 +6,7 @@ resposible for something working. So I am stoked to learn it as I am into system
 
 Error 1:
 
-in /home/harsha/Projects/amfoss-tasks/Task-03/The_Grand_Line_Restoration_Initiative
+in /"REDACTED"/"REDACTED"/Projects/amfoss-tasks/Task-03/The_Grand_Line_Restoration_Initiative
 /archives/reverse-mountain
 
 found at function asset_directory_is_expected_in_config_tree().
