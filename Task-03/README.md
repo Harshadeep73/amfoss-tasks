@@ -19,7 +19,9 @@ error: asset directory not avalible in the reverse-mountain directory.
 fix: either verify the directory exists and change the path, or mkdir a new
 directory and then reverify
 
-TLDR: The Directory didn't exist, just create a temporary directory and reverify and the integration test comes out fine :)
+TLDR: The legacy-stations file existed and was moved. It has to be moved back :)
+
+Donno where it is tho :(
 
 
 
