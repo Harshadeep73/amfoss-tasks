@@ -1,7 +1,9 @@
+#define _POSIX_C_SOURCE 200809L
 #include <poll.h>
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 #include "process.h"
 #include "system.h"
 #include "../ui/ui.h"
@@ -36,7 +38,7 @@ int main(void)
         ui_draw_header(&stats);
         ui_draw_cpu_matrix(&stats);
         ui_draw_memory(&stats);
-        ui_draw_process_list(processes, process_count, search_query);
+        ui_draw_process_list(processes, process_count, search_query, selected_process);
         ui_draw_footer(process_count);
 
         int key = input_get_key();
@@ -84,9 +86,21 @@ int main(void)
             break;
         }
 
+        if (key == KEY_F2)
+            kill(processes[selected_process].pid, SIGTERM);
+
+        if (key == KEY_F9)
+            kill(processes[selected_process].pid, SIGKILL);
+
+        if (key == KEY_UP && selected_process > 0)
+            selected_process--;
+
+        if (key == KEY_DOWN && selected_process < process_count - 1)
+            selected_process++;
+
         free_processes(processes);
 
-        poll(NULL, 0, 500);
+        poll(NULL, 0, 250);
     }
 
     input_cleanup();

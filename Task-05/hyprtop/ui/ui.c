@@ -223,7 +223,8 @@ void ui_draw_memory(SystemStats *stats)
 void ui_draw_process_list(
     Process *processes,
     int process_count,
-    const char *search_query
+    const char *search_query,
+    int selected_process
 )
 {
     int start_row = 14;
@@ -282,6 +283,9 @@ void ui_draw_process_list(
 
         MOVE_TO(row, 4);
 
+        if (displayed == selected_process)
+            printf(HEADER_BG);
+
         printf(
             "%-8d %-36s %10.2f%% ",
             processes[i].pid,
@@ -290,6 +294,9 @@ void ui_draw_process_list(
         );
 
         print_memory(processes[i].memory);
+
+        if (displayed == selected_process)
+            printf(RESET);
 
         displayed++;
     }

@@ -40,7 +40,7 @@ int input_get_key(void)
     unsigned char first;
 
     if (read(STDIN_FILENO, &first, 1) != 1)
-        return KEY_NONE;
+        return KEY_ESCAPE;
 
     if (first == 'O') {
         unsigned char seq;
@@ -48,24 +48,23 @@ int input_get_key(void)
         if (read(STDIN_FILENO, &seq, 1) != 1)
             return KEY_NONE;
 
-
         if (seq == 'P')
             return KEY_F1;
+
         if (seq == 'Q')
             return KEY_F2;
+
         if (seq == 'R')
             return KEY_F3;
+
         if (seq == 'S')
             return KEY_F4;
     }
 
-    if (read(STDIN_FILENO, &first, 1) != 1)
-        return KEY_ESCAPE;
-
     if (first == '[') {
-        unsigned char seq[3];
+        unsigned char seq[4];
 
-        if (read(STDIN_FILENO, seq, 3) != 3)
+        if (read(STDIN_FILENO, &seq[0], 1) != 1)
             return KEY_NONE;
 
         if (seq[0] == 'A')
@@ -74,10 +73,19 @@ int input_get_key(void)
         if (seq[0] == 'B')
             return KEY_DOWN;
 
-        if (seq[0] == '2' &&
-            seq[1] == '1' &&
-            seq[2] == '~')
-            return KEY_F10;
+        if (seq[0] == '2') {
+            if (read(STDIN_FILENO, &seq[1], 1) != 1)
+                return KEY_NONE;
+
+            if (read(STDIN_FILENO, &seq[2], 1) != 1)
+                return KEY_NONE;
+
+            if (seq[1] == '1' && seq[2] == '~')
+                return KEY_F10;
+
+            if (seq[1] == '0' && seq[2] == '~')
+                return KEY_F9;
+        }
     }
 
     return KEY_NONE;

@@ -26,7 +26,8 @@ void ui_draw_memory(SystemStats *stats);
 void ui_draw_process_list(
     Process *processes,
     int process_count,
-    const char *search_query
+    const char *search_query,
+    int selected_process
 );
 
 void ui_draw_footer(int process_count);

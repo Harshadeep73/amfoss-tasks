@@ -9,6 +9,7 @@
 #define KEY_F4 1004
 #define KEY_UP 2001
 #define KEY_DOWN 2002
+#define KEY_F9 1009
 
 int input_get_key(void);
 void input_init(void);
