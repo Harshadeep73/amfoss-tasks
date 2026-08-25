@@ -222,11 +222,15 @@ void ui_draw_memory(SystemStats *stats)
 
 void ui_draw_process_list(
     Process *processes,
-    int process_count
+    int process_count,
+    const char *search_query
 )
 {
     int start_row = 14;
     int visible = 25;
+
+    MOVE_TO(start_row, 1);
+    printf("\033[K");
 
     MOVE_TO(start_row, 3);
 
@@ -235,6 +239,17 @@ void ui_draw_process_list(
         "┌─ PROCESSES"
         RESET
     );
+
+    if (search_query[0] != '\0') {
+        printf(
+            "  SEARCH: "
+            COLOR_PRIMARY "%s" RESET,
+            search_query
+        );
+    }
+
+    MOVE_TO(start_row + 2, 1);
+    printf("\033[K");
 
     MOVE_TO(start_row + 2, 4);
 
@@ -248,31 +263,44 @@ void ui_draw_process_list(
         "MEMORY"
     );
 
-    for (int i = 0; i < visible; i++) {
+    int displayed = 0;
 
-        MOVE_TO(start_row + 3 + i, 1);
+    for (int i = 0;
+         i < process_count && displayed < visible;
+         i++) {
+
+        if (!process_matches_search(
+                &processes[i],
+                search_query
+            ))
+            continue;
+
+        int row = start_row + 3 + displayed;
+
+        MOVE_TO(row, 1);
         printf("\033[K");
 
-        MOVE_TO(start_row + 3 + i, 4);
+        MOVE_TO(row, 4);
 
-        if (i < process_count) {
-            printf(
-                "%-8d %-36s %10.2f%% ",
-                processes[i].pid,
-                processes[i].name,
-                processes[i].cpu
-            );
+        printf(
+            "%-8d %-36s %10.2f%% ",
+            processes[i].pid,
+            processes[i].name,
+            processes[i].cpu
+        );
 
-            print_memory(processes[i].memory);
-        } else {
-            printf(
-                "%-8s %-36s %12s %16s",
-                "",
-                "",
-                "",
-                ""
-            );
-        }
+        print_memory(processes[i].memory);
+
+        displayed++;
+    }
+
+    while (displayed < visible) {
+        int row = start_row + 3 + displayed;
+
+        MOVE_TO(row, 1);
+        printf("\033[K");
+
+        displayed++;
     }
 }
 
@@ -282,7 +310,7 @@ void ui_draw_footer(int process_count)
 
     printf(
         COLOR_PRIMARY "F1" RESET " Help    "
-        COLOR_PRIMARY "F2" RESET " Setup    "
+        COLOR_PRIMARY "F2" RESET " Terminate    "
         COLOR_PRIMARY "F3" RESET " Search    "
     );
     if (get_sort_mode() == 0)
@@ -295,4 +323,87 @@ void ui_draw_footer(int process_count)
         DIM "%d processes" RESET,
         process_count
     );
+}
+
+void ui_draw_help(void)
+{
+    printf(CLEAR_SCREEN);
+    MOVE_TO(1, 1);
+
+    printf(
+        COLOR_PRIMARY BOLD
+        "  HYPRTOP HELP"
+        RESET
+    );
+
+    MOVE_TO(3, 3);
+
+    printf(
+        COLOR_PRIMARY BOLD
+        "┌─ KEYBOARD"
+        RESET
+    );
+
+    MOVE_TO(5, 5);
+    printf(
+        COLOR_PRIMARY "F1" RESET
+        "     Help"
+    );
+
+    MOVE_TO(6, 5);
+    printf(
+        COLOR_PRIMARY "F4" RESET
+        "     Toggle sorting: CPU / RAM"
+    );
+
+    MOVE_TO(7, 5);
+    printf(
+        COLOR_PRIMARY "F10" RESET
+        "    Quit"
+    );
+
+    MOVE_TO(9, 3);
+
+    printf(
+        COLOR_PRIMARY BOLD
+        "┌─ PROCESS SORTING"
+        RESET
+    );
+
+    MOVE_TO(11, 5);
+
+    printf(
+        "CPU ↓   Highest CPU-consuming processes first"
+    );
+
+    MOVE_TO(12, 5);
+
+    printf(
+        "RAM ↓   Highest memory-consuming processes first"
+    );
+
+    MOVE_TO(14, 3);
+
+    printf(
+        COLOR_PRIMARY BOLD
+        "┌─ SYSTEM MONITOR"
+        RESET
+    );
+
+    MOVE_TO(16, 5);
+    printf("CPU MATRIX   Per-core CPU utilization");
+
+    MOVE_TO(17, 5);
+    printf("MEMORY       RAM and swap utilization");
+
+    MOVE_TO(18, 5);
+    printf("PROCESSES    Top processes by selected metric");
+
+    MOVE_TO(get_terminal_rows() - 1, 3);
+
+    printf(
+        DIM "Press any key to return to HYPRTOP..." RESET
+    );
+
+    fflush(stdout);
 }

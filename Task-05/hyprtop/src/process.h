@@ -13,6 +13,7 @@ Process *scan_processes(int *count, unsigned long total_delta);
 long get_process_cpu_time(int pid);
 void set_sort_mode(int mode);
 int get_sort_mode(void);
+int process_matches_search(const Process *process, const char *query);
 
 double calculate_cpu_usage(
     long old_process,

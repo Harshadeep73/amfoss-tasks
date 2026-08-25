@@ -48,15 +48,31 @@ int input_get_key(void)
         if (read(STDIN_FILENO, &seq, 1) != 1)
             return KEY_NONE;
 
+
+        if (seq == 'P')
+            return KEY_F1;
+        if (seq == 'Q')
+            return KEY_F2;
+        if (seq == 'R')
+            return KEY_F3;
         if (seq == 'S')
             return KEY_F4;
     }
+
+    if (read(STDIN_FILENO, &first, 1) != 1)
+        return KEY_ESCAPE;
 
     if (first == '[') {
         unsigned char seq[3];
 
         if (read(STDIN_FILENO, seq, 3) != 3)
             return KEY_NONE;
+
+        if (seq[0] == 'A')
+            return KEY_UP;
+
+        if (seq[0] == 'B')
+            return KEY_DOWN;
 
         if (seq[0] == '2' &&
             seq[1] == '1' &&

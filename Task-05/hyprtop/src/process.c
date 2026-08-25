@@ -13,6 +13,14 @@ static unsigned long *previous_cpu = NULL;
 static int previous_cpu_size = 0;
 static unsigned char *previous_cpu_valid = NULL;
 
+int process_matches_search(const Process *process, const char *query)
+{
+    if (query[0] == '\0')
+        return 1;
+
+    return strstr(process->name, query) != NULL;
+}
+
 void set_sort_mode(int mode)
 {
     sort_mode = mode;

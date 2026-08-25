@@ -18,14 +18,15 @@
 
 void ui_init(void);
 void ui_cleanup(void);
-
+void ui_draw_help(void);
 void ui_draw_header(SystemStats *stats);
 void ui_draw_cpu_matrix(SystemStats *stats);
 void ui_draw_memory(SystemStats *stats);
 
 void ui_draw_process_list(
     Process *processes,
-    int process_count
+    int process_count,
+    const char *search_query
 );
 
 void ui_draw_footer(int process_count);
