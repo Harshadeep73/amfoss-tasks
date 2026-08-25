@@ -6,6 +6,20 @@
 
 #include "process.h"
 
+static int compare_memory(const void *a, const void *b)
+{
+    const Process *p1 = a;
+    const Process *p2 = b;
+
+    if (p1->memory < p2->memory)
+        return 1;
+
+    if (p1->memory > p2->memory)
+        return -1;
+
+    return 0;
+}
+
 Process *scan_processes(int *count) {
     Process *processes = NULL;
     int process_count = 0;
@@ -88,6 +102,13 @@ Process *scan_processes(int *count) {
     closedir(proc);
 
     *count = process_count;
+
+    qsort(
+        processes,
+        process_count,
+        sizeof(Process),
+        compare_memory
+    );
 
     return processes;
 }

@@ -1,5 +1,4 @@
 #include <poll.h>
-#include <stdio.h>
 #include <time.h>
 
 #include "process.h"
@@ -22,9 +21,11 @@ int main(void)
 
         get_system_stats(&stats);
 
-        snprintf(stats.uptime, sizeof(stats.uptime), "LIVE");
-
-        draw_ui(processes, process_count, &stats);
+        ui_draw_header(&stats);
+        ui_draw_cpu_matrix(&stats);
+        ui_draw_memory(&stats);
+        ui_draw_process_list(processes, process_count);
+        ui_draw_footer(process_count);
 
         free_processes(processes);
 

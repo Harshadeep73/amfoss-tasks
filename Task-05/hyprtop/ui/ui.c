@@ -1,97 +1,99 @@
-#include <stdio.h>
-#include <string.h>
-
 #include "ui.h"
+#include <stdio.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
-#define RESET       "\033[0m"
-#define BOLD        "\033[1m"
-#define DIM         "\033[2m"
-#define HIDE_CURSOR "\033[?25l"
-#define SHOW_CURSOR "\033[?25h"
+static int get_terminal_rows(void)
+{
+    struct winsize ws;
 
-#define GREEN       "\033[38;2;0;255;65m"
-#define BG          "\033[48;2;19;19;19m"
-#define HEADER_BG   "\033[48;2;58;57;57m"
-#define YELLOW      "\033[33m"
-#define RED         "\033[31m"
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1)
+        return 24;
 
-#define MOVE_TO(r,c) printf("\033[%d;%dH", (r), (c))
+    return ws.ws_row;
+}
+
+static int get_terminal_cols(void)
+{
+    struct winsize ws;
+
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1)
+        return 120;
+
+    return ws.ws_col;
+}
 
 void ui_init(void)
 {
-    printf(HIDE_CURSOR BG "\033[2J");
+    printf("\033[?1049h");
+    printf(HIDE_CURSOR);
+    printf(COLOR_BG CLEAR_SCREEN "\033[H");
     fflush(stdout);
 }
 
 void ui_cleanup(void)
 {
-    printf(SHOW_CURSOR RESET "\033[2J\033[H");
+    printf(SHOW_CURSOR RESET "\033[?1049l");
     fflush(stdout);
 }
 
-static void draw_header(SystemStats *stats)
+void ui_draw_header(SystemStats *stats)
 {
     MOVE_TO(1, 1);
 
     printf(
-        GREEN BOLD
-        " HYPRTOP V2.4.0 "
+        COLOR_PRIMARY BOLD
+        "  HYPRTOP V2.4.0"
         RESET
-        " Nodes  Threads  "
-        GREEN BOLD "CPU_Core" RESET
-        "  Memory  Disk"
+        "    Nodes    Threads    "
+        COLOR_PRIMARY BOLD "CPU_Core" RESET
+        "    Memory    Disk"
     );
 
-    MOVE_TO(1, 80);
+    MOVE_TO(1, get_terminal_cols()-50);
 
     printf(
-        DIM "UP: %s" RESET,
-        stats->uptime
+        DIM "UP: %s    LOAD: %s" RESET,
+        stats->uptime,
+        stats->load_avg
     );
 
-    MOVE_TO(2, 1);
-
-    printf(HEADER_BG);
-
-    for (int i = 0; i < 100; i++)
-        printf(" ");
-
-    printf(RESET);
 }
 
-static void draw_cpu_matrix(SystemStats *stats)
+void ui_draw_cpu_matrix(SystemStats *stats)
 {
-    MOVE_TO(4, 2);
+    int rows = (stats->cpu_count + 1) / 2;
+
+    MOVE_TO(3, 3);
 
     printf(
-        GREEN BOLD
-        "┌─ CPU_MATRIX [%d CORES] "
+        COLOR_PRIMARY BOLD
+        "┌─ CPU MATRIX [%d CORES]"
         RESET,
         stats->cpu_count
     );
-
-    int rows = (stats->cpu_count + 1) / 2;
 
     for (int row = 0; row < rows; row++) {
 
         int left = row;
         int right = row + rows;
 
-        MOVE_TO(6 + row, 4);
+        MOVE_TO(5 + row, 5);
 
         if (left < stats->cpu_count) {
-            printf(
-                "%d [",
-                left
-            );
+
+            printf("%-2d [", left);
 
             int bars = (int)(stats->cpu_usage[left] / 5.0f);
 
+            if (bars > 20)
+                bars = 20;
+
             for (int j = 0; j < 20; j++) {
                 if (j < bars)
-                    printf(GREEN "|");
+                    printf(COLOR_PRIMARY "█");
                 else
-                    printf(DIM ".");
+                    printf(DIM "·");
             }
 
             printf(
@@ -101,15 +103,21 @@ static void draw_cpu_matrix(SystemStats *stats)
         }
 
         if (right < stats->cpu_count) {
-            printf("    %d [", right);
+
+            MOVE_TO(5 + row, 42);
+
+            printf("%-2d [", right);
 
             int bars = (int)(stats->cpu_usage[right] / 5.0f);
 
+            if (bars > 20)
+                bars = 20;
+
             for (int j = 0; j < 20; j++) {
                 if (j < bars)
-                    printf(GREEN "|");
+                    printf(COLOR_PRIMARY "█");
                 else
-                    printf(DIM ".");
+                    printf(DIM "·");
             }
 
             printf(
@@ -120,113 +128,132 @@ static void draw_cpu_matrix(SystemStats *stats)
     }
 }
 
-static void draw_memory(SystemStats *stats)
+void ui_draw_memory(SystemStats *stats)
 {
-    MOVE_TO(4, 60);
+    MOVE_TO(3, 86);
 
     printf(
-        GREEN BOLD
-        "┌─ MEM_ALLOC "
+        COLOR_PRIMARY BOLD
+        "┌─ MEMORY"
         RESET
     );
 
-    MOVE_TO(6, 60);
+    MOVE_TO(5, 86);
 
     printf(
-        "RAM [%.1fG/%.1fG]",
+        "RAM   %.1fG / %.1fG",
         stats->ram_used,
         stats->ram_total
     );
 
-    MOVE_TO(7, 60);
+    MOVE_TO(6, 86);
 
     printf("[");
 
-    int bars =
-        (int)((stats->ram_used / stats->ram_total) * 30);
+    int bars = 0;
+
+    if (stats->ram_total > 0)
+        bars = (int)(
+            stats->ram_used / stats->ram_total * 30
+        );
+
+    if (bars > 30)
+        bars = 30;
 
     for (int i = 0; i < 30; i++) {
         if (i < bars)
-            printf(GREEN "|");
+            printf(COLOR_PRIMARY "█");
         else
-            printf(DIM ".");
+            printf(DIM "·");
     }
 
     printf(
-        RESET "] %.1f%%",
-        (stats->ram_used / stats->ram_total) * 100.0
+        RESET "] %5.1f%%",
+        stats->ram_total > 0
+            ? stats->ram_used / stats->ram_total * 100.0
+            : 0.0
     );
 
-    MOVE_TO(9, 60);
+    MOVE_TO(9, 86);
 
     printf(
-        "SWP [%.1fG/%.1fG]",
+        "SWAP  %.1fG / %.1fG",
         stats->swap_used,
         stats->swap_total
     );
 
-    MOVE_TO(10, 60);
+    MOVE_TO(10, 86);
 
     printf("[");
 
-    bars =
-        (int)((stats->swap_used / stats->swap_total) * 30);
+    bars = 0;
+
+    if (stats->swap_total > 0)
+        bars = (int)(
+            stats->swap_used / stats->swap_total * 30
+        );
+
+    if (bars > 30)
+        bars = 30;
 
     for (int i = 0; i < 30; i++) {
         if (i < bars)
-            printf(GREEN "|");
+            printf(COLOR_PRIMARY "█");
         else
-            printf(DIM ".");
+            printf(DIM "·");
     }
 
     printf(
-        RESET "] %.1f%%",
-        (stats->swap_used / stats->swap_total) * 100.0
+        RESET "] %5.1f%%",
+        stats->swap_total > 0
+            ? stats->swap_used / stats->swap_total * 100.0
+            : 0.0
     );
 }
 
-static void draw_processes(
+void ui_draw_process_list(
     Process *processes,
     int process_count
 )
 {
-    int start_row = 13;
+    int start_row = 14;
+    int visible = 25;
 
-    MOVE_TO(start_row, 1);
+    MOVE_TO(start_row, 3);
 
     printf(
-        GREEN BOLD
-        "┌─ PROCESS_TABLE "
+        COLOR_PRIMARY BOLD
+        "┌─ PROCESSES"
         RESET
     );
 
-    MOVE_TO(start_row + 1, 1);
+    MOVE_TO(start_row + 2, 4);
 
     printf(
         HEADER_BG
-        " PID      PROCESS                 CPU        MEMORY"
-        RESET
+        "%-8s %-36s %12s %16s"
+        RESET,
+        "PID",
+        "PROCESS",
+        "CPU",
+        "MEMORY"
     );
-
-    int visible = 8;
 
     for (int i = 0; i < visible; i++) {
 
-        MOVE_TO(start_row + 2 + i, 1);
+        MOVE_TO(start_row + 3 + i, 4);
 
         if (i < process_count) {
-
             printf(
-                "%-8d %-24s %7.2f%% %12ld kB",
+                "%-8d %-36s %10.2f%% %13ld kB",
                 processes[i].pid,
                 processes[i].name,
                 processes[i].cpu,
                 processes[i].memory
             );
-
         } else {
             printf(
-                "%-8s %-24s %7s %12s",
+                "%-8s %-36s %12s %16s",
                 "",
                 "",
                 "",
@@ -236,35 +263,18 @@ static void draw_processes(
     }
 }
 
-static void draw_footer(int process_count)
+void ui_draw_footer(int process_count)
 {
-    MOVE_TO(24, 1);
+    MOVE_TO(get_terminal_rows(), 1);
 
     printf(
-        GREEN " F1" RESET " Help "
-        GREEN " F2" RESET " Setup "
-        GREEN " F3" RESET " Search "
-        GREEN " F4" RESET " Filter "
-        GREEN " F9" RESET " Kill "
-        GREEN " F10" RESET " Quit "
-        DIM "    %d processes" RESET,
+        COLOR_PRIMARY "F1" RESET " Help    "
+        COLOR_PRIMARY "F2" RESET " Setup    "
+        COLOR_PRIMARY "F3" RESET " Search    "
+        COLOR_PRIMARY "F4" RESET " Filter    "
+        COLOR_PRIMARY "F9" RESET " Kill    "
+        COLOR_PRIMARY "F10" RESET " Quit    "
+        DIM "%d processes" RESET,
         process_count
     );
-}
-
-void draw_ui(
-    Process *processes,
-    int process_count,
-    SystemStats *stats
-)
-{
-    printf("\033[H");
-
-    draw_header(stats);
-    draw_cpu_matrix(stats);
-    draw_memory(stats);
-    draw_processes(processes, process_count);
-    draw_footer(process_count);
-
-    fflush(stdout);
 }
