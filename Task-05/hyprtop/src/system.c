@@ -3,34 +3,28 @@
 
 #include "system.h"
 
-long get_total_cpu_time(void)
+static unsigned long previous_total_cpu = 0;
+static int previous_total_cpu_valid = 0;
+
+unsigned long get_total_cpu_time(void)
 {
     FILE *file = fopen("/proc/stat", "r");
 
     if (file == NULL)
-        return -1;
+        return 0;
 
-    char line[256];
+    unsigned long user;
+    unsigned long nice;
+    unsigned long system;
+    unsigned long idle;
+    unsigned long iowait;
+    unsigned long irq;
+    unsigned long softirq;
+    unsigned long steal;
 
-    long user;
-    long nice;
-    long system;
-    long idle;
-    long iowait;
-    long irq;
-    long softirq;
-    long steal;
-
-    if (fgets(line, sizeof(line), file) == NULL) {
-        fclose(file);
-        return -1;
-    }
-
-    fclose(file);
-
-    if (sscanf(
-        line,
-        "cpu %ld %ld %ld %ld %ld %ld %ld %ld",
+    int result = fscanf(
+        file,
+        "cpu %lu %lu %lu %lu %lu %lu %lu %lu",
         &user,
         &nice,
         &system,
@@ -39,11 +33,29 @@ long get_total_cpu_time(void)
         &irq,
         &softirq,
         &steal
-    ) != 8)
-        return -1;
+    );
+
+    fclose(file);
+
+    if (result != 8)
+        return 0;
 
     return user + nice + system + idle +
            iowait + irq + softirq + steal;
+}
+
+unsigned long get_total_cpu_delta(void)
+{
+    unsigned long current = get_total_cpu_time();
+    unsigned long delta = 0;
+
+    if (previous_total_cpu_valid && current >= previous_total_cpu)
+        delta = current - previous_total_cpu;
+
+    previous_total_cpu = current;
+    previous_total_cpu_valid = 1;
+
+    return delta;
 }
 
 int get_system_stats(SystemStats *stats)

@@ -6,10 +6,13 @@ typedef struct {
     char name[256];
     long memory;
     double cpu;
+    unsigned long cpu_ticks;
 } Process;
 
-Process *scan_processes(int *count);
+Process *scan_processes(int *count, unsigned long total_delta);
 long get_process_cpu_time(int pid);
+void set_sort_mode(int mode);
+int get_sort_mode(void);
 
 double calculate_cpu_usage(
     long old_process,

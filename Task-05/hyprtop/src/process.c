@@ -3,8 +3,41 @@
 #include <string.h>
 #include <ctype.h>
 #include <dirent.h>
+#include <unistd.h>
 
 #include "process.h"
+
+static int sort_mode = 0;
+
+static unsigned long *previous_cpu = NULL;
+static int previous_cpu_size = 0;
+static unsigned char *previous_cpu_valid = NULL;
+
+void set_sort_mode(int mode)
+{
+    sort_mode = mode;
+}
+
+int get_sort_mode(void)
+{
+    return sort_mode;
+}
+
+static int get_pid_max(void)
+{
+    FILE *file = fopen("/proc/sys/kernel/pid_max", "r");
+
+    if (file == NULL)
+        return 4194304;
+
+    int pid_max = 0;
+
+    fscanf(file, "%d", &pid_max);
+
+    fclose(file);
+
+    return pid_max;
+}
 
 static int compare_memory(const void *a, const void *b)
 {
@@ -20,10 +53,119 @@ static int compare_memory(const void *a, const void *b)
     return 0;
 }
 
-Process *scan_processes(int *count) {
+static int compare_cpu(const void *a, const void *b)
+{
+    const Process *p1 = a;
+    const Process *p2 = b;
+
+    if (p1->cpu < p2->cpu)
+        return 1;
+
+    if (p1->cpu > p2->cpu)
+        return -1;
+
+    return 0;
+}
+
+static void sort_processes(Process *processes, int count)
+{
+    if (sort_mode == 0) {
+        qsort(
+            processes,
+            count,
+            sizeof(Process),
+            compare_cpu
+        );
+    } else {
+        qsort(
+            processes,
+            count,
+            sizeof(Process),
+            compare_memory
+        );
+    }
+}
+
+static unsigned long get_process_cpu_ticks(int pid)
+{
+    char path[256];
+    snprintf(path, sizeof(path), "/proc/%d/stat", pid);
+
+    FILE *file = fopen(path, "r");
+
+    if (file == NULL)
+        return 0;
+
+    char buffer[4096];
+
+    if (fgets(buffer, sizeof(buffer), file) == NULL) {
+        fclose(file);
+        return 0;
+    }
+
+    fclose(file);
+
+    char *close_paren = strrchr(buffer, ')');
+
+    if (close_paren == NULL)
+        return 0;
+
+    char *fields = close_paren + 2;
+
+    char state;
+    unsigned long utime;
+    unsigned long stime;
+
+    int result = sscanf(
+        fields,
+        "%c "
+        "%*d %*d %*d %*d %*d %*d %*d %*d %*d %*d "
+        "%lu %lu",
+        &state,
+        &utime,
+        &stime
+    );
+
+    if (result != 3)
+        return 0;
+
+    return utime + stime;
+}
+
+Process *scan_processes(int *count, unsigned long total_delta)
+{
     Process *processes = NULL;
     int process_count = 0;
     int capacity = 0;
+
+    if (previous_cpu == NULL) {
+        previous_cpu_size = get_pid_max() + 1;
+
+        previous_cpu = calloc(
+            previous_cpu_size,
+            sizeof(unsigned long)
+        );
+
+        previous_cpu_valid = calloc(
+            previous_cpu_size,
+            sizeof(unsigned char)
+        );
+
+        if (previous_cpu == NULL || previous_cpu_valid == NULL) {
+            free(previous_cpu);
+            free(previous_cpu_valid);
+
+            previous_cpu = NULL;
+            previous_cpu_valid = NULL;
+
+            return NULL;
+        }
+    }
+
+    long cpu_count = sysconf(_SC_NPROCESSORS_ONLN);
+
+    if (cpu_count < 1)
+        cpu_count = 1;
 
     DIR *proc = opendir("/proc");
 
@@ -37,7 +179,9 @@ Process *scan_processes(int *count) {
             continue;
 
         if (process_count >= capacity) {
-            int new_capacity = (capacity == 0) ? 64 : capacity * 2;
+            int new_capacity = (capacity == 0)
+                ? 64
+                : capacity * 2;
 
             Process *temp = realloc(
                 processes,
@@ -59,12 +203,38 @@ Process *scan_processes(int *count) {
         p->pid = atoi(entry->d_name);
         p->cpu = 0.0;
         p->memory = 0;
+        p->cpu_ticks = get_process_cpu_ticks(p->pid);
         p->name[0] = '\0';
+
+        unsigned long old_ticks = previous_cpu[p->pid];
+        unsigned long delta = 0;
+
+        if (previous_cpu_valid[p->pid]) {
+            if (p->cpu_ticks >= old_ticks)
+                delta = p->cpu_ticks - old_ticks;
+        }
+
+        previous_cpu[p->pid] = p->cpu_ticks;
+        previous_cpu_valid[p->pid] = 1;
+
+        if (total_delta > 0) {
+            p->cpu =
+                ((double)delta / total_delta)
+                * cpu_count
+                * 100.0;
+        } else {
+            p->cpu = 0.0;
+        }
 
         char path[512];
         char line[256];
 
-        snprintf(path, sizeof(path), "/proc/%s/comm", entry->d_name);
+        snprintf(
+            path,
+            sizeof(path),
+            "/proc/%s/comm",
+            entry->d_name
+        );
 
         FILE *file = fopen(path, "r");
 
@@ -80,7 +250,12 @@ Process *scan_processes(int *count) {
 
         fclose(file);
 
-        snprintf(path, sizeof(path), "/proc/%s/status", entry->d_name);
+        snprintf(
+            path,
+            sizeof(path),
+            "/proc/%s/status",
+            entry->d_name
+        );
 
         file = fopen(path, "r");
 
@@ -89,7 +264,11 @@ Process *scan_processes(int *count) {
 
         while (fgets(line, sizeof(line), file) != NULL) {
             if (strncmp(line, "VmRSS:", 6) == 0) {
-                sscanf(line, "VmRSS: %ld kB", &p->memory);
+                sscanf(
+                    line,
+                    "VmRSS: %ld kB",
+                    &p->memory
+                );
                 break;
             }
         }
@@ -103,78 +282,12 @@ Process *scan_processes(int *count) {
 
     *count = process_count;
 
-    qsort(
-        processes,
-        process_count,
-        sizeof(Process),
-        compare_memory
-    );
+    sort_processes(processes, process_count);
 
     return processes;
 }
 
-long get_process_cpu_time(int pid) {
-    char path[256];
-    char buffer[4096];
-
-    snprintf(path, sizeof(path), "/proc/%d/stat", pid);
-
-    FILE *file = fopen(path, "r");
-
-    if (file == NULL)
-        return -1;
-
-    if (fgets(buffer, sizeof(buffer), file) == NULL) {
-        fclose(file);
-        return -1;
-    }
-
-    fclose(file);
-
-    char *close_paren = strrchr(buffer, ')');
-
-    if (close_paren == NULL)
-        return -1;
-
-    char *fields = close_paren + 2;
-
-    long utime = 0;
-    long stime = 0;
-
-    int field = 3;
-
-    char *token = strtok(fields, " ");
-
-    while (token != NULL) {
-        if (field == 14) {
-            utime = atol(token);
-        } else if (field == 15) {
-            stime = atol(token);
-            break;
-        }
-
-        field++;
-        token = strtok(NULL, " ");
-    }
-
-    return utime + stime;
-}
-
-double calculate_cpu_usage(
-    long old_process,
-    long new_process,
-    long old_total,
-    long new_total
-) {
-    long process_delta = new_process - old_process;
-    long total_delta = new_total - old_total;
-
-    if (total_delta <= 0)
-        return 0.0;
-
-    return ((double)process_delta / total_delta) * 100.0;
-}
-
-void free_processes(Process *processes) {
+void free_processes(Process *processes)
+{
     free(processes);
 }

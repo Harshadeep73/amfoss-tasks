@@ -17,7 +17,9 @@ typedef struct {
     char load_avg[32];
 } SystemStats;
 
-long get_total_cpu_time(void);
+unsigned long get_total_cpu_time(void);
+unsigned long get_total_cpu_delta(void);
 int get_system_stats(SystemStats *stats);
+
 
 #endif

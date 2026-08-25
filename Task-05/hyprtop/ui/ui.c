@@ -23,6 +23,19 @@ static int get_terminal_cols(void)
     return ws.ws_col;
 }
 
+static void print_memory(long kb)
+{
+    if (kb >= 1024 * 1024) {
+        printf("%.1f GB", kb / (1024.0 * 1024.0));
+    }
+    else if (kb >= 1024) {
+        printf("%.1f MB", kb / 1024.0);
+    }
+    else {
+        printf("%ld KB", kb);
+    }
+}
+
 void ui_init(void)
 {
     printf("\033[?1049h");
@@ -43,14 +56,10 @@ void ui_draw_header(SystemStats *stats)
 
     printf(
         COLOR_PRIMARY BOLD
-        "  HYPRTOP V2.4.0"
-        RESET
-        "    Nodes    Threads    "
-        COLOR_PRIMARY BOLD "CPU_Core" RESET
-        "    Memory    Disk"
+        "  HYPRTOP V1.0.0"
     );
 
-    MOVE_TO(1, get_terminal_cols()-50);
+    MOVE_TO(1, get_terminal_cols()-51);
 
     printf(
         DIM "UP: %s    LOAD: %s" RESET,
@@ -241,16 +250,20 @@ void ui_draw_process_list(
 
     for (int i = 0; i < visible; i++) {
 
+        MOVE_TO(start_row + 3 + i, 1);
+        printf("\033[K");
+
         MOVE_TO(start_row + 3 + i, 4);
 
         if (i < process_count) {
             printf(
-                "%-8d %-36s %10.2f%% %13ld kB",
+                "%-8d %-36s %10.2f%% ",
                 processes[i].pid,
                 processes[i].name,
-                processes[i].cpu,
-                processes[i].memory
+                processes[i].cpu
             );
+
+            print_memory(processes[i].memory);
         } else {
             printf(
                 "%-8s %-36s %12s %16s",
@@ -271,7 +284,12 @@ void ui_draw_footer(int process_count)
         COLOR_PRIMARY "F1" RESET " Help    "
         COLOR_PRIMARY "F2" RESET " Setup    "
         COLOR_PRIMARY "F3" RESET " Search    "
-        COLOR_PRIMARY "F4" RESET " Filter    "
+    );
+    if (get_sort_mode() == 0)
+        printf(COLOR_PRIMARY "F4" RESET " RAM↓    ");
+    else
+        printf(COLOR_PRIMARY "F4" RESET " CPU↓    ");
+    printf(
         COLOR_PRIMARY "F9" RESET " Kill    "
         COLOR_PRIMARY "F10" RESET " Quit    "
         DIM "%d processes" RESET,
