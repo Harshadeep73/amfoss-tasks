@@ -16,3 +16,15 @@ To answer the four questions,
 (iv) My fields of interests? poetry, Linux and OS in general and also game design. Poetry is only grown either through experiences or writing and I am not that
        frequent of a writer so im planning to improve through the former. Linux and OS, I plan to explore Arch and other different systems and their philosophies.
        Game design is an interest I genuinely have the least idea about so I currently don't know how to go about it.
+
+
+## Tasks
+
+| Task | Status |
+|------|--------|
+| Task 1 | ✅ |
+| Task 2 | ✅ |
+| Task 3 | 🚧 |
+| Task 4 | ✅ |
+| Task 5 | ✅ |
+| Task 6 | 🚧 |
