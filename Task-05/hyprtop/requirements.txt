@@ -1,0 +1,16 @@
+gcc
+make
+glibc
+
+# Standard C / POSIX headers
+stdio.h
+stdlib.h
+string.h
+ctype.h
+dirent.h
+unistd.h
+termios.h
+fcntl.h
+signal.h
+sys/ioctl.h
+poll.h
