@@ -36,7 +36,7 @@ func main() {
     case 1:
         Executed = FCFS(processes)
     case 2:
-        //Executed = sjf(processes)
+        Executed = SJF(processes)
     case 3:
         //Executed = roundRobin(processes)
     default:

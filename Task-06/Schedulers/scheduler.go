@@ -19,8 +19,8 @@ type Execution struct {
 }
 
 type Result struct {
-    PID        string
-    Waiting    int
+    PID string
+    Waiting int
     Turnaround int
 }
 
@@ -35,10 +35,10 @@ func GetAvgs(executions []Execution) {
         totalWaiting += e.Waiting
         totalTurnaround += e.Turnaround
     }
-    avgWaiting := totalWaiting / len(executions)
-    avgTurnaround := totalTurnaround / len(executions)
-    fmt.Printf("\n\nAverage Waiting Time: %d\n", avgWaiting)
-    fmt.Printf("Average Turnaround Time: %d\n", avgTurnaround)
+    avgWaiting := float32(totalWaiting) / float32(len(executions))
+    avgTurnaround := float32(totalTurnaround) / float32(len(executions))
+    fmt.Printf("\n\nAverage Waiting Time: %.2f\n", avgWaiting)
+    fmt.Printf("Average Turnaround Time: %.2f\n", avgTurnaround)
 }
 
 func DrawGanttChart(executions []Execution) {
