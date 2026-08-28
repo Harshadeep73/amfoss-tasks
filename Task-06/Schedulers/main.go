@@ -3,50 +3,50 @@ package main
 import "fmt"
 
 func main() {
-    var n int
+	var n int
 
-    fmt.Print("Enter number of processes: ")
-    fmt.Scan(&n)
+	fmt.Print("Enter number of processes: ")
+	fmt.Scan(&n)
 
-    processes := make([]Process, n)
+	processes := make([]Process, n)
 
-    for i := 0; i < n; i++ {
-        fmt.Printf("\nProcess %d\n", i+1)
+	for i := 0; i < n; i++ {
+		fmt.Printf("\nProcess %d\n", i+1)
 
-        fmt.Print("PID: (String) ")
-        fmt.Scan(&processes[i].PID)
+		fmt.Print("PID: (String) ")
+		fmt.Scan(&processes[i].PID)
 
-        fmt.Print("Arrival Time: (int) ")
-        fmt.Scan(&processes[i].Arrival)
+		fmt.Print("Arrival Time: (int) ")
+		fmt.Scan(&processes[i].Arrival)
 
-        fmt.Print("Burst Time: (int) ")
-        fmt.Scan(&processes[i].Burst)
-    }
+		fmt.Print("Burst Time: (int) ")
+		fmt.Scan(&processes[i].Burst)
+	}
 
-    fmt.Println("Choose a scheduling algorithm:")
-    fmt.Println("1. FCFS")
-    fmt.Println("2. SJF")
-    fmt.Println("3. Round Robin\n")
+	fmt.Println("Choose a scheduling algorithm:")
+	fmt.Println("1. FCFS")
+	fmt.Println("2. SJF")
+	fmt.Println("3. Round Robin")
 
-    var choice int
-    fmt.Scan(&choice)
+	var choice int
+	fmt.Scan(&choice)
 
-    var Executed []Execution
-    switch choice {
-    case 1:
-        Executed = FCFS(processes)
-    case 2:
-        Executed = SJF(processes)
-    case 3:
-    	var quant int
-     	fmt.Print("Enter the time Quantum for RR: ")
-     	fmt.Scan(&quant)
-    	Executed = RoundRobin(processes,quant)
-    default:
-        fmt.Println("Invalid choice")
-    }
+	var Executed []Execution
+	switch choice {
+	case 1:
+		Executed = FCFS(processes)
+	case 2:
+		Executed = SJF(processes)
+	case 3:
+		var quant int
+		fmt.Print("Enter the time Quantum for RR: ")
+		fmt.Scan(&quant)
+		Executed = RoundRobin(processes, quant)
+	default:
+		fmt.Println("Invalid choice")
+	}
 
-    DrawGanttChart(Executed)
-    GetAvgs(Executed)
+	DrawGanttChart(Executed)
+	GetAvgs(Executed)
 
 }
