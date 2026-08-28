@@ -39,9 +39,9 @@ func main() {
         Executed = SJF(processes)
     case 3:
     	var quant int
+     	fmt.Print("Enter the time Quantum for RR: ")
      	fmt.Scan(&quant)
-      	fmt.Print("Enter the time Quantum for RR: ")
-    	//Executed = roundRobin(processes,quant)
+    	Executed = RoundRobin(processes,quant)
     default:
         fmt.Println("Invalid choice")
     }
