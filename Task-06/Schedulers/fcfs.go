@@ -7,7 +7,6 @@ func FCFS(processes []Process) []Execution {
         if processes[i].Arrival == processes[j].Arrival {
             return processes[i].PID < processes[j].PID
         }
-
         return processes[i].Arrival < processes[j].Arrival
     })
 

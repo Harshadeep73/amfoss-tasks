@@ -1,7 +1,7 @@
 package main
 
 func SJF(processes []Process) []Execution {
-	executions := make([]Execution, 0, len(processes))
+	var executions []Execution
 	currentTime := 0
 	completed := 0
 	for completed < len(processes) {
