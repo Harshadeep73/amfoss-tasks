@@ -1,47 +1,53 @@
 package main
-import "sort"
 
 func SJF(processes []Process) []Execution {
 	executions := make([]Execution, 0, len(processes))
-	sort.Slice(processes, func(i, j int) bool {
-		if processes[i].Burst == processes[j].Burst {
-			if processes[i].Arrival == processes[j].Arrival {
-				return processes[i].PID < processes[j].PID
-			}
-			return processes[i].Arrival < processes[j].Arrival
-		}
-		return processes[i].Burst < processes[j].Burst
-	})
-
 	currentTime := 0
+	completed := 0
+	for completed < len(processes) {
+		best := -1
 
-	for _, p := range processes {
-        if currentTime < p.Arrival {
-            executions = append(executions, Execution{
-                PID:   "IDLE",
-                Start: currentTime,
-                End:   p.Arrival,
-            })
+		for i,p := range processes {
+			if p.Arrival <= currentTime && !p.Completed {
+				if best == -1 || p.Burst < processes[best].Burst {
+					best = i
+				}
+			}
+		}
+		if best == -1 {
+			nextArrival := -1
 
-            currentTime = p.Arrival
-        }
+			for i,p := range processes {
+				if !p.Completed {
+					if nextArrival == -1 || p.Arrival < processes[nextArrival].Arrival {
+						nextArrival = i
+					}
+				}
+			}
+			executions = append(executions, Execution{
+				PID: "IDLE",
+				Start: currentTime,
+				End: processes[nextArrival].Arrival,
+			})
 
-        start := currentTime
-        end := start + p.Burst
-
-        turnaround := end - p.Arrival
-        waiting := turnaround - p.Burst
-
-        executions = append(executions, Execution{
-            PID:        p.PID,
-            Start:      start,
-            End:        end,
-            Waiting:    waiting,
-            Turnaround: turnaround,
-        })
-
-        currentTime = end
-    }
-
+			currentTime = processes[nextArrival].Arrival
+			continue
+		}
+		p:= processes[best]
+		start := currentTime
+		end := start + p.Burst
+		turnaround := end-p.Arrival
+		waiting:= turnaround-p.Burst
+		executions = append(executions,Execution{
+			PID: p.PID,
+			Start: start,
+			End: end,
+			Waiting: waiting,
+			Turnaround: turnaround,
+		})
+		currentTime = end
+		processes[best].Completed = true
+		completed++
+	}
 	return executions
 }

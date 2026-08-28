@@ -17,9 +17,9 @@ func FCFS(processes []Process) []Execution {
     for _, p := range processes {
         if currentTime < p.Arrival {
             executions = append(executions, Execution{
-                PID:   "IDLE",
+                PID: "IDLE",
                 Start: currentTime,
-                End:   p.Arrival,
+                End: p.Arrival,
             })
 
             currentTime = p.Arrival
@@ -32,10 +32,10 @@ func FCFS(processes []Process) []Execution {
         waiting := turnaround - p.Burst
 
         executions = append(executions, Execution{
-            PID:        p.PID,
-            Start:      start,
-            End:        end,
-            Waiting:    waiting,
+            PID: p.PID,
+            Start: start,
+            End: end,
+            Waiting: waiting,
             Turnaround: turnaround,
         })
 

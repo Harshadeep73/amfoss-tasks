@@ -8,6 +8,7 @@ type Process struct {
     CompletionTime int
     WaitingTime int
     TurnaroundTime int
+    Completed bool
 }
 
 type Execution struct {
