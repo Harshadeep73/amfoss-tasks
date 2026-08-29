@@ -17,6 +17,9 @@ async def get_random(endpoint):
         return None
     return random.choice(data)
 
+async def get_devil_fruits():
+    return await get_data("devil-fruits")
+
 async def get_characters():
     return await get_random("characters")
 

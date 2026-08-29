@@ -2,9 +2,8 @@ import random, discord
 from datetime import date
 from discord.ext import commands
 from db import db
-from db.data_rep import Pirate,LOOTED
+from db import data_rep
 from commands.api import api
-from utils import formatters as form
 
 class Player(commands.Cog):
     def __init__(self,bot):
@@ -17,7 +16,7 @@ class Player(commands.Cog):
             if db.get_pirate(user_id):
                 await ctx.send("You're already a pirate, buddy!")
                 return
-            pirate = Pirate(user_id,name,None)
+            pirate = data_rep.Pirate(user_id,name,None)
             db.create_pirate(pirate)
             await ctx.send(
                 f"Welcome aboard, {name}!\n"
@@ -55,7 +54,7 @@ class Player(commands.Cog):
         name = ctx.author.display_name
         pirate = db.get_pirate(user_id)
         if not pirate:
-            await ctx.send(f"Start your journey first {name}! Use !embark !")
+            await ctx.send(f"Start your journey first {name}! Use !embark")
             return
         today = str(date.today())
         if pirate.last_claim == today:
@@ -65,8 +64,8 @@ class Player(commands.Cog):
         pirate.berries += luck * 500
         pirate.last_claim = today
         db.update_pirate(pirate)
-        looted = list(LOOTED.keys())[luck-1]
-        await ctx.send(f"You've Looted {looted} and gained {LOOTED[looted]} berries."
+        looted = list(data_rep.LOOTED.keys())[luck-1]
+        await ctx.send(f"You've Looted {looted} and gained {data_rep.LOOTED[looted]} berries."
                        f"Use !treasury to check your current berry count!")
         return
 
@@ -76,10 +75,10 @@ class Player(commands.Cog):
         receiver = db.get_pirate(member.id)
         today = str(date.today())
         if not sender:
-            await ctx.send(f"Start your journey first {sender.name}! Use !embark !")
+            await ctx.send(f"Start your journey first {ctx.author.display_name}! Use !embark")
             return
         if not receiver:
-            await ctx.send(f"{receiver.name} hasn't embarked yet!")
+            await ctx.send(f"{member.display_name} hasn't embarked yet!")
             return
 
         if amount <= 0:
@@ -103,19 +102,23 @@ class Player(commands.Cog):
         )
 
     @commands.command()
-    async def logpose(self, ctx):
-        fact_type = random.randint(1, 3)
+    async def logpose(self,ctx):
+        user_id = ctx.author.id
+        pirate = db.get_pirate(user_id)
+        if not pirate:
+            await ctx.send(f"Start your journey first {ctx.author.display_name}! Use !embark")
+            return
+        fact_type = random.randint(1,3)
         match fact_type:
             case 1:
                 data = await api.get_random("characters")
-                await ctx.send(form.character_str(data))
+                await ctx.send(data_rep.character_str(data))
             case 2:
                 data = await api.get_random("devil-fruits")
-                await ctx.send(form.devil_fruit_str(data))
+                await ctx.send(data_rep.devil_fruit_str(data))
             case 3:
                 data = await api.get_random("islands")
-                await ctx.send(form.island_str(data))
-
+                await ctx.send(data_rep.island_str(data))
 
 
 async def setup(bot):

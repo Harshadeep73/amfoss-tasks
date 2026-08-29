@@ -18,7 +18,19 @@ def setup():
             bounty INTEGER DEFAULT 0,
             rank TEXT DEFAULT 'Rookie',
             fleet_id INTEGER,
-            last_claim TEXT
+            last_claim TEXT,
+            devil_fruit_type TEXT
+        )
+        """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS shop (
+            slot INTEGER PRIMARY KEY,
+            fruit_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            type TEXT NOT NULL,
+            price INTEGER NOT NULL,
+            shop_date TEXT NOT NULL
         )
         """)
 
@@ -31,8 +43,8 @@ def create_pirate(pirate):
 
     cursor.execute("""
             INSERT INTO pirates
-            (user_id,name,berries,bounty,rank,fleet_id,last_claim)
-            VALUES (?,?,?,?,?,?,?)
+            (user_id,name,berries,bounty,rank,fleet_id,last_claim,devil_fruit_type)
+            VALUES (?,?,?,?,?,?,?,?)
         """, (
             pirate.user_id,
             pirate.name,
@@ -40,7 +52,8 @@ def create_pirate(pirate):
             pirate.bounty,
             pirate.rank,
             pirate.fleet_id,
-            pirate.last_claim
+            pirate.last_claim,
+            pirate.devil_fruit_type
         ))
 
     connection.commit()
@@ -61,7 +74,7 @@ def get_pirate(user_id):
     if row is None:
         return None
 
-    return Pirate(row[0],row[1],row[6],row[2],row[3],row[4],row[5])
+    return Pirate(row[0],row[1],row[6],row[2],row[3],row[4],row[5],row[7])
 
 def update_pirate(pirate):
     connection = get_con()
@@ -74,7 +87,8 @@ def update_pirate(pirate):
             bounty = ?,
             rank = ?,
             fleet_id = ?,
-            last_claim = ?
+            last_claim = ?,
+            devil_fruit_type = ?
         WHERE user_id = ?
     """, (
         pirate.name,
@@ -83,8 +97,45 @@ def update_pirate(pirate):
         pirate.rank,
         pirate.fleet_id,
         pirate.last_claim,
+        pirate.devil_fruit_type,
         pirate.user_id
     ))
+
+    connection.commit()
+    connection.close()
+
+def get_shop():
+    connection = get_con()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "SELECT * FROM shop ORDER BY slot"
+    )
+
+    rows = cursor.fetchall()
+    connection.close()
+
+    return rows
+
+def update_shop(stock):
+    connection = get_con()
+    cursor = connection.cursor()
+
+    cursor.execute("DELETE FROM shop")
+
+    for slot,fruit in enumerate(stock,1):
+        cursor.execute("""
+            INSERT INTO shop
+            (slot,fruit_id,name,type,price,shop_date)
+            VALUES (?,?,?,?,?,?)
+        """, (
+            slot,
+            fruit["id"],
+            fruit["name"]["en"],
+            fruit["type"],
+            fruit["price"],
+            fruit["shop_date"]
+        ))
 
     connection.commit()
     connection.close()

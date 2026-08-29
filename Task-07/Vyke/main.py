@@ -18,6 +18,7 @@ setup()
 
 async def main():
     await bot.load_extension("commands.player.player")
+    await bot.load_extension("commands.economy.shop")
     await bot.start(TOKEN)
 
 asyncio.run(main())
