@@ -120,6 +120,37 @@ class Player(commands.Cog):
                 data = await api.get_random("islands")
                 await ctx.send(data_rep.island_str(data))
 
+    @commands.command()
+    async def inventory(self,ctx):
+        pirate = db.get_pirate(ctx.author.id)
+        if not pirate:
+            await ctx.send(f"Start your journey first {ctx.author.display_name}! Use !embark ")
+            return
+        inventory = db.get_inventory(ctx.author.id)
+        if not inventory:
+            await ctx.send("Your inventory is empty!")
+            return
+        message = "Inventory:\n"
+        for i,item in enumerate(inventory):
+            message += f"{i+1}.{item[3]} - {item[5]} Berries\n"
+        await ctx.send(message)
+
+    @commands.command()
+    async def sell(self,ctx,item_id: int):
+        pirate = db.get_pirate(ctx.author.id)
+        if not pirate:
+            await ctx.send(f"Start your journey first {ctx.author.display_name}! Use !embark ")
+            return
+        item = db.get_inventory_item(ctx.author.id,item_id)
+        if not item:
+            await ctx.send("That item isn't in your inventory!")
+            return
+        worth = int(item[5] * 0.7)
+        pirate.berries += worth
+        db.update_pirate(pirate)
+        db.remove_inventory_item(item_id)
+        await ctx.send(f"You sold {item[3]} for {worth} Berries!")
+
 
 async def setup(bot):
     await bot.add_cog(Player(bot))
