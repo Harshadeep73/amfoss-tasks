@@ -3,6 +3,8 @@ from datetime import date
 from discord.ext import commands
 from db import db
 from db.data_rep import Pirate,LOOTED
+from commands.api import api
+from utils import formatters as form
 
 class Player(commands.Cog):
     def __init__(self,bot):
@@ -99,6 +101,21 @@ class Player(commands.Cog):
             f"{sender.name} traded {amount} Berries "
             f"to {receiver.name}!"
         )
+
+    @commands.command()
+    async def logpose(self, ctx):
+        fact_type = random.randint(1, 3)
+        match fact_type:
+            case 1:
+                data = await api.get_random("characters")
+                await ctx.send(form.character_str(data))
+            case 2:
+                data = await api.get_random("devil-fruits")
+                await ctx.send(form.devil_fruit_str(data))
+            case 3:
+                data = await api.get_random("islands")
+                await ctx.send(form.island_str(data))
+
 
 
 async def setup(bot):
