@@ -1,10 +1,9 @@
-import os
-import discord
+import os,discord,asyncio
 from discord.ext import commands
 from dotenv import load_dotenv
+from db.db import setup
 
-
-load_dotenv():
+load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
 
 intents = discord.Intents.default()
@@ -15,7 +14,10 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     print(f"Vyke is online as {bot.user}")
 
-@bot.command()
-async def ping(ctx):
-    await ctx.send("Yo")
-bot.run(TOKEN)
+setup()
+
+async def main():
+    await bot.load_extension("commands.player.player")
+    await bot.start(TOKEN)
+
+asyncio.run(main())
