@@ -1,5 +1,5 @@
 
-##Task-06
+## Task-06
 
 These algo's were taught to us in our OS class so they were easy to manage but the real task was doing it in go.
 I was kinda excited to learn a new language based on principles rather than syntax cuz in the end other than
@@ -12,7 +12,7 @@ Note: I handled the IDLE parts simply, The logic is the same across the algorith
 and check if the next process' arrival time is higher than it, if it is, then there is an IDLE time. The only thing that
 changes across the algorithms is the 'next process'
 
-#FCFS:
+# FCFS:
 
 First Come First Serve.
 
@@ -20,7 +20,7 @@ As the name says, the first to arrive gets the resources faster.
 First, sort based on arrival time and of eq, on pid. Then, 
 just put them into a seperate struct called executions and send it to the gantt chart maker.
 
-#SJF
+# SJF
 
 Shortest Job First.
 
@@ -29,7 +29,7 @@ a Completed field which was a bool flag. I would just check whatever processes a
 for the min of them, then run it if it wasn't already done executing. Then, just send the executions object to the gantt
 chart maker.
 
-#RR
+# RR
 
 Round Robin.
 

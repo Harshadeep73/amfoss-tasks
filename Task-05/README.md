@@ -1,12 +1,12 @@
-#Task 5
+# Task 5
 
 A clone of htop, building it was fun as it was exhausting tbh. I learnt a lot about the linux file system though.
 
 I did mine in Systems C.
 
-#Resources:
+# Resources:
 
-#Youtube:
+# Youtube:
 
 1) https://www.youtube.com/watch?v=0XdjODvsRN8
 
@@ -20,9 +20,7 @@ For the stuff I'd be cloning and the under-the-hood know of the actual thing.
 
 For the UI of mine, cuz I did mine in C.
 
-4) chatgpt (learning)
-
-#GeeksforGeeks:
+# GeeksforGeeks:
 
 https://www.geeksforgeeks.org/linux-unix/proc-file-system-linux/
 
@@ -30,8 +28,9 @@ For better understanding of the proc directory
 
 Now, The actual Process, Imma divide it into Levels:
 
+ChatGpt (learning)
 
-#LVL 1: Reading off of /proc:
+# LVL 1: Reading off of /proc:
 
 I went to proc and simply format-printed the memory part and process name. Then, I started to do the actual thing.
 
@@ -41,7 +40,7 @@ For the name I used /proc/pid/comm and for memory I used /proc/pid/status and se
 
 For CPU, I went into /proc/pid/stat.
 
-#LVL 2: CPU:
+# LVL 2: CPU:
 
 This part had a bit of computation to it.
 
@@ -60,13 +59,13 @@ I did the same thing with the total CPU ticks from /proc/stat and used the two d
 
 This was probably the part where I understood the most about how CPU usage actually works.
 
-#LVL 3: Dynamic storage:
+# LVL 3: Dynamic storage:
 
 I didn't want to just make some fixed array like Process processes[100], so I used realloc().
 
 So, I just started with 64 and kept on doubling it to make a dynamic allocation with some headroom tho. 
 
-#LVL 4: Sorting:
+# LVL 4: Sorting:
 
 Once I had all the processes, I wanted the biggest CPU/RAM consumers at the top.
 
@@ -82,7 +81,7 @@ RAM ↓
 
 This was also my first proper use of qsort with comparator functions.
 
-#LVL 5: UI:
+# LVL 5: UI:
 
 I just used ANSI escape sequences and used manual positioning for now.
 
@@ -90,13 +89,13 @@ I made the CPU matrix, RAM/Swap section, process table and footer.
 
 I also used the alternate terminal screen so that exiting HYPRTOP doesn't mess up the normal terminal.
 
-#LVL 6: Input:
+# LVL 6: Input:
 
 I needed function keys and arrow keys to work without pressing Enter, so I used termios and non-blocking input.
 
 Then I manually parsed the escape sequences and got to know which is what through cat (Spent a lot of time debugging that :( )
 
-#LVL 7: Search + Selection:
+# LVL 7: Search + Selection:
 
 F3 became search.
 
@@ -106,7 +105,7 @@ Escape clears the search.
 
 Then I added UP/DOWN to select a process and highlighted the selected row.
 
-#LVL 8: Process control:
+# LVL 8: Process control:
 
 Once selection worked, F2 and F9 were easy.
 
@@ -117,7 +116,7 @@ Both are sent to the PID of the selected process.
 
 F10 just quits and restores the terminal.
 
-#Controls:
+# Controls:
 
 F1  Help
 F2  Terminate
@@ -127,7 +126,7 @@ F4  CPU/RAM
 F9  Kill
 F10 Quit
 
-#Result:
+# Result:
 
 A working htop-like process monitor made entirely in C.
 
