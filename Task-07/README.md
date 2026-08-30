@@ -69,6 +69,16 @@ loop rather than just being a way to group players together.
 3. `!surrender <fleet>`: ends an active war by surrendering (captain only)
 4. `!history`: displays the fleet's war history
 
+##Unfinised work:
+
+I have more ideas to improve this and make it better, like
+1. A better shop system: have items having abilities revolve the shop randomly.
+2. better items: items can have special abilities: one of which is protecting against a fixed number of raids or attacks.
+3. More variety of fruit powers
+4. A better fleet system and a more mature version of it, like having internal tests and a captain challenge (if user wins, he gets to be captain)
+5. A marine role: army, legions, and their versions of fleets, and a general instead of a captain and to catch a pirate would get them their own honor or any other
+   numerical value
+
 
 ## Resources used:
 

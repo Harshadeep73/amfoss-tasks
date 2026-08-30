@@ -58,7 +58,7 @@ class Player(commands.Cog):
             return
         today = str(date.today())
         if pirate.last_claim == today:
-            await ctx.send("The marines are looking! Its too dangerous to raid innocents now!")
+            await ctx.send("The marines are looking! Its too dangerous to raid innocents now! Come back tomorrow!")
             return
         luck = random.randint(1,4)
         pirate.berries += luck * 500
