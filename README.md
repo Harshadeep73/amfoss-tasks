@@ -28,4 +28,5 @@ To answer the four questions,
 | Task 4 | ✅ |
 | Task 5 | ✅ |
 | Task 6 | ✅ |
-| Task 7 | 🚧 |
+| Task 7 | ✅ |
+| Task 8 | 🚧 |
