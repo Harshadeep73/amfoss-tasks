@@ -19,6 +19,8 @@ setup()
 async def main():
     await bot.load_extension("commands.player.player")
     await bot.load_extension("commands.economy.shop")
+    if not TOKEN:
+        raise ValueError("TOKEN is not set")
     await bot.start(TOKEN)
 
 asyncio.run(main())

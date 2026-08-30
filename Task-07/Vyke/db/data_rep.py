@@ -37,6 +37,11 @@ class Pirate:
                 return bounty-self.bounty
         return None
 
+    def __eq__(self,other):
+        if not isinstance(other,Pirate):
+            return False
+        return self.user_id == other.user_id
+
 def character_str(character):
     name = character["name"]["en"]
     bounties = character.get("bounties", [])

@@ -148,9 +148,129 @@ class Player(commands.Cog):
         worth = int(item[5] * 0.7)
         pirate.berries += worth
         db.update_pirate(pirate)
-        db.remove_inventory_item(item_id)
+        db.remove_inventory_item(item[0])
         await ctx.send(f"You sold {item[3]} for {worth} Berries!")
 
+    @commands.command()
+    async def eat(self,ctx,item_id: int):
+        pirate = db.get_pirate(ctx.author.id)
+        if not pirate:
+            await ctx.send(f"Start your journey first {ctx.author.display_name}! Use !embark ")
+            return
+        item = db.get_inventory_item(ctx.author.id,item_id)
+        if not item:
+            await ctx.send("That item isn't in your inventory!")
+            return
+        pirate.devil_fruit_type = item[4]
+        db.update_pirate(pirate)
+        db.remove_inventory_item(item[0])
+        await ctx.send(f"You ate the {item[3]}!")
+
+    @commands.command()
+    async def fruit_power(self,ctx):
+        pirate = db.get_pirate(ctx.author.id)
+        if not pirate:
+            await ctx.send(f"Start your journey first {ctx.author.display_name}! Use !embark ")
+            return
+        if not pirate.devil_fruit_type:
+            await ctx.send("You haven't eaten a Devil Fruit yet!")
+            return
+        match pirate.devil_fruit_type:
+            case "Paramecia":
+                await ctx.send(
+                    "Paramecia\n"
+                    "Grants the user a unique supernatural ability.\n"
+                    "Raid Bonus: Chance to multiply your raid reward."
+                )
+            case "Zoan":
+                await ctx.send(
+                    "Zoan\n"
+                    "Allows the user to transform into an animal or hybrid form.\n"
+                    "Raid Bonus: Provides a modest return but has a higher chance of success."
+                )
+            case "Logia":
+                await ctx.send(
+                    "Logia\n"
+                    "Allows the user to create, control and transform into a natural element.\n"
+                    "Raid Bonus: Chance to steal the opponent's Devil Fruit."
+                )
+
+    @commands.command()
+    async def worstgeneration(self,ctx):
+        worst_gen = db.get_worst_generation()
+        if not worst_gen:
+            await ctx.send("There are no Pirates sailing the seas!")
+            return
+        await ctx.send("The Worst Generation: ")
+        for i,pirate in enumerate(worst_gen):
+            await ctx.send(f"{i+1}. {pirate[0]} - {pirate[1]} Berries - {pirate[2]}\n")
+
+    @commands.command()
+    async def raid(self,ctx,member: discord.Member):
+        attacker = db.get_pirate(ctx.author.id)
+        victim = db.get_pirate(member.id)
+        if not attacker:
+            await ctx.send(f"Start your journey first {ctx.author.display_name}! Use !embark ")
+            return
+        if not victim:
+            await ctx.send(f"{member.display_name} hasn't embarked yet!")
+            return
+
+        if victim.berries == 0:
+            await ctx.send(f"{victim.name} has no berries left to be raided!")
+            return
+        if victim == attacker:
+            await ctx.send("You can't raid yourself!")
+            return
+
+        take = 0.4
+        chance = 0.5
+        bounty_rate = 0.4
+        multiplier = False
+        steal = False
+        stolen_fruit = ""
+        match attacker.devil_fruit_type:
+            case "Paramecia":
+                take = 0.35
+                chance = 0.4
+                bounty_rate = 0.5
+                if random.random() < 0.45:
+                    take = 0.7
+                    multiplier = True
+            case "Zoan":
+                take = 0.3
+                chance = 0.7
+                bounty_rate = 0.85
+            case "Logia":
+                take = 0.35
+                chance = 0.4
+                bounty_rate = 0.6
+        if random.random() > chance:
+            await ctx.send(f"{attacker.name}'s raid against {victim.name} failed!")
+            return
+        reward = int(victim.berries * take)
+        bounty = int(reward * bounty_rate)
+        victim.berries -= reward
+        attacker.berries += reward
+        attacker.bounty += bounty
+        attacker.update_rank()
+        if attacker.devil_fruit_type == "Logia":
+            if random.random() < 0.2:
+                inventory = db.get_inventory(victim.user_id)
+                if inventory:
+                    fruit = random.choice(inventory)
+                    db.remove_inventory_item(fruit[0])
+                    db.add_inventory(attacker.user_id,fruit[2],fruit[3],fruit[4],fruit[5])
+                    stolen_fruit = fruit[3]
+                    steal = True
+        db.update_pirate(attacker)
+        db.update_pirate(victim)
+        message = f"{attacker.name} raided {victim.name} and took {reward} Berries! {attacker.name} gained {bounty} Bounty."
+        if multiplier:
+            message += " Paramecia multiplier activated!"
+        if steal:
+            message += f" {attacker.name} stole {stolen_fruit}!"
+        await ctx.send(message)
 
 async def setup(bot):
     await bot.add_cog(Player(bot))

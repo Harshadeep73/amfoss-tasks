@@ -20,6 +20,8 @@ For the stuff I'd be cloning and the under-the-hood know of the actual thing.
 
 For the UI of mine, cuz I did mine in C.
 
+4) chatgpt (learning)
+
 #GeeksforGeeks:
 
 https://www.geeksforgeeks.org/linux-unix/proc-file-system-linux/

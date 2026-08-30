@@ -54,4 +54,4 @@ Resources used:
 
 1.https://go.dev/tour/list (as mentioned)
 2.https://www.geeksforgeeks.org/go-language/go-decision-making-if-if-else-nested-if-if-else-if/
-
+3.Chatgpt (learning)

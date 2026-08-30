@@ -256,3 +256,14 @@ def remove_inventory_item(item_id):
     )
     connection.commit()
     connection.close()
+
+#WorstGen
+def get_worst_generation():
+    connection = get_con()
+    cursor = connection.cursor()
+    cursor.execute(
+        "SELECT name,berries,rank FROM pirates ORDER BY berries DESC LIMIT 5"
+    )
+    rows = cursor.fetchall()
+    connection.close()
+    return rows
