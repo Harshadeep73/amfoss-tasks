@@ -1,6 +1,6 @@
-##Task-07
+## Task-07
 
-#VYKE
+# VYKE
 
 This is my very first (functional) discord bot so I was hyped to build it. I have worked with 
 data-bases before in supabase so I wasn't that troubled. I expanded it while doing the task and my
@@ -8,7 +8,7 @@ design was pretty simple,typical and generic. A simple commands and db folder.Th
 folder split into 3 seperate ones: player,api and shop. The purpose is pretty self-explanatory ig
 the commands regarding player is all in player.py file and so forth.
 
-                         The actual idea I changed a bit. The first !bounty command, I changed it to 
+The actual idea I changed a bit. The first !bounty command, I changed it to 
 !treasury. I had another purpose for !bounty in mind as a kind of a hierarchical system for pirates.
 So, I did that, then pretty much everything's the same. In the end I added a couple commands:
 
@@ -40,10 +40,12 @@ a devil fruit after a successful raid from the victim's inventory. Bounty is oka
 I had a lot of fun builing this cuz parts of my gamedev brain were working. Also, time was tight so I
 finished it quick
 
-##Resources used:
+## Resources used:
 
 1.https://www.geeksforgeeks.org/python/python-sqlite/
+
 2.https://www.onepieceapi.com/documentation
+
 3.Chatgpt (learning)
 
 I found the docs of this api [2] very approachable donno if it was due to the theme or if it was 
