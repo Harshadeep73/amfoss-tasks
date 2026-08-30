@@ -17,8 +17,10 @@ async def on_ready():
 setup()
 
 async def main():
-    await bot.load_extension("commands.player.player")
-    await bot.load_extension("commands.economy.shop")
+    await bot.load_extension("commands.player")
+    await bot.load_extension("commands.shop")
+    await bot.load_extension("commands.war")
+    await bot.load_extension("commands.fleet")
     if not TOKEN:
         raise ValueError("TOKEN is not set")
     await bot.start(TOKEN)

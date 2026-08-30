@@ -1,7 +1,7 @@
 import random
 from datetime import date
 from discord.ext import commands
-from commands.api import api
+from commands import api
 from db import db
 
 class Shop(commands.Cog):
@@ -22,7 +22,7 @@ class Shop(commands.Cog):
             if not fruits:
                 await ctx.send("The shop is empty right now!")
                 return
-            new_stock = random.sample(fruits,18)
+            new_stock = random.sample(fruits,min(18,len(fruits)))
             for fruit in new_stock:
                 fruit["price"] = random.randint(1,10) * 100
                 fruit["shop_date"] = today

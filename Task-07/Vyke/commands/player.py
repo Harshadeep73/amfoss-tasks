@@ -3,7 +3,7 @@ from datetime import date
 from discord.ext import commands
 from db import db
 from db import data_rep
-from commands.api import api
+from commands import api
 
 class Player(commands.Cog):
     def __init__(self,bot):
@@ -211,17 +211,17 @@ class Player(commands.Cog):
         victim = db.get_pirate(member.id)
         if not attacker:
             await ctx.send(f"Start your journey first {ctx.author.display_name}! Use !embark ")
-            return
+            return False, 0
         if not victim:
             await ctx.send(f"{member.display_name} hasn't embarked yet!")
-            return
+            return False, 0
 
         if victim.berries == 0:
             await ctx.send(f"{victim.name} has no berries left to be raided!")
-            return
+            return False, 0
         if victim == attacker:
             await ctx.send("You can't raid yourself!")
-            return
+            return False, 0
 
         take = 0.4
         chance = 0.5
@@ -247,7 +247,7 @@ class Player(commands.Cog):
                 bounty_rate = 0.6
         if random.random() > chance:
             await ctx.send(f"{attacker.name}'s raid against {victim.name} failed!")
-            return
+            return False, 0
         reward = int(victim.berries * take)
         bounty = int(reward * bounty_rate)
         victim.berries -= reward
@@ -271,6 +271,8 @@ class Player(commands.Cog):
         if steal:
             message += f" {attacker.name} stole {stolen_fruit}!"
         await ctx.send(message)
+        return True, reward
+
 
 async def setup(bot):
     await bot.add_cog(Player(bot))

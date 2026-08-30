@@ -36,9 +36,39 @@ bounty
 Logia: a success rate of 40% and takes about 35% of the berries but has a rare 20% chance of stealing 
 a devil fruit after a successful raid from the victim's inventory. Bounty is okay at 60%.
 
-
 I had a lot of fun builing this cuz parts of my gamedev brain were working. Also, time was tight so I
 finished it quick
+
+### Fleet System
+
+I also added a Fleet System where pirates can form and manage their own fleets. A pirate can create a 
+fleet and automatically becomes its captain, while other pirates can join existing fleets. Captains 
+can hand over their position to another member or disband the fleet, while normal members can leave 
+whenever they want. Fleets also have their own bounty and Berries leaderboards.
+
+I also added a simple war system between fleets. A captain can declare war on another fleet, after 
+which members of the two opposing fleets can attack each other using the existing raid mechanics. 
+These attacks are recorded separately from normal raids in an "Ancient Scroll of Wars", along with 
+declarations of war and surrenders. This gives the fleet system a bit more of an actual gameplay 
+loop rather than just being a way to group players together.
+
+### Fleet Commands
+
+1. `!createfleet <name>`: creates a new fleet
+2. `!joinfleet <name>`: joins an existing fleet
+3. `!turnback`: displays the fleet and its members
+4. `!leavefleet`: leaves the current fleet
+5. `!disbandfleet`: disbands the fleet (captain only)
+6. `!handover @member`: transfers captaincy to another member
+7. `!fleetboard <stat>`: displays the fleet leaderboard for bounty or berries
+
+### War Commands
+
+1. `!war <fleet>`: declares war on another fleet (captain only)
+2. `!attack @member`: attacks a member of an opposing fleet during an active war
+3. `!surrender <fleet>`: ends an active war by surrendering (captain only)
+4. `!history`: displays the fleet's war history
+
 
 ## Resources used:
 

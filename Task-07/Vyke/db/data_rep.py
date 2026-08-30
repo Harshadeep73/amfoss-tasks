@@ -1,3 +1,4 @@
+#Data (Dicts)
 RANKS = {
     "Rookie": 0,
     "Pirate": 1000,
@@ -14,6 +15,7 @@ LOOTED = {
     "Royal Merchant": 2000
 }
 
+#Data Representation (OOPS)
 class Pirate:
     def __init__(self,user_id,name,last_claim,berries=1000,bounty=0,rank="Rookie",fleet_id=None,devil_fruit_type=None):
         self.user_id = user_id
@@ -42,11 +44,12 @@ class Pirate:
             return False
         return self.user_id == other.user_id
 
+#String Formatting
 def character_str(character):
     name = character["name"]["en"]
     bounties = character.get("bounties", [])
     if bounties:
-        return f"The Log Pose points to {name}, who has a bounty of {bounties[0]["amount"]} Berries."
+        return f"The Log Pose points to {name}, who has a bounty of {bounties[0]['amount']} Berries."
     return f"The Log Pose points to {name}, but no bounty is known."
 
 def devil_fruit_str(fruit):
