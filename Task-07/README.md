@@ -12,10 +12,10 @@ The actual idea I changed a bit. The first !bounty command, I changed it to
 !treasury. I had another purpose for !bounty in mind as a kind of a hierarchical system for pirates.
 So, I did that, then pretty much everything's the same. In the end I added a couple commands:
 
-1. !bounty: displays present bounty, rank and bounty required for next rank
-2. !fruit_power: displays the power of the fruit you've consumed
-3. !eat: helps the user gain the fruit type's power
-4. !sell: helps the user sell items in their inventory (reduced value) to gain berries
+1. `!bounty` : displays present bounty, rank and bounty required for next rank
+2. `!fruit_power` : displays the power of the fruit you've consumed
+3. `!eat <inventory number>` : helps the user gain the fruit type's power
+4. `!sell <inventory number>` : helps the user sell items in their inventory (reduced value) to gain berries
 
 I made the shop so that its daily and can be restocked about 9 times. Only 9 slots are avalible at
 a time and once a fruit is purchased, it can be restocked only once.
